@@ -1,13 +1,15 @@
 // External libraries
 const express = require('express');
+const helmet = require('helmet');
 
 // Internal code
 const router = require('./router')
 
 const server = express();
 
+server.use(helmet())
 server.use(express.json());
-server.use('/api/', router)
+server.use('/api', router);
 
 server.use((err, req, res, next) => {
   res.status(500).json({

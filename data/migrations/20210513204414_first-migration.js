@@ -6,7 +6,8 @@ exports.up = async function(knex) {
       tbl.string('recipe_name', 127)
         .notNullable()
         .unique()
-      // created at
+      tbl.timestamp('created_at')
+        .defaultTo(knex.fn.now())
     })
     .createTable('steps', tbl => {
       tbl.increments('step_id')
@@ -18,6 +19,7 @@ exports.up = async function(knex) {
       tbl.integer('recipe_id')
         .references('recipe_id')
         .inTable('recipes')
+        .onDelete('CASCADE')
     })
     .createTable('ingredients', tbl => {
       tbl.increments('ingredient_id')
@@ -25,19 +27,24 @@ exports.up = async function(knex) {
         .notNullable()
         .unique()
     })
-    .createTable('quantity', tbl => {
+    .createTable('quantities', tbl => {
       tbl.integer('ingredient_id')
         .references('ingredient_id')
         .inTable('ingredients')
-      tbl.integer('quantity')
+        .onDelete('CASCADE')
+      tbl.string('quantity')
         .notNullable()
-        .unsigned()
       tbl.integer('step_id')
         .references('step_id')
         .inTable('steps')
+        .onDelete('CASCADE')
     })
 };
 
-exports.down = function(knex) {
-  
+exports.down = async function(knex) {
+  await knex.schema
+    .dropTableIfExists('quantities')
+    .dropTableIfExists('ingredients')
+    .dropTableIfExists('steps')
+    .dropTableIfExists('recipes')
 };
